@@ -1,15 +1,24 @@
-from pydantic import BaseModel,EmailStr,AnyUrl,Field
+from pydantic import BaseModel,EmailStr,AnyUrl,Field,field_validator
 from typing import List,Dict,Optional,Annotated
 
 class Patient(BaseModel):
-   # name: str
-    name: Annotated[str,Field(max_length=30,title='Name of the patient',description='Give the name of patient under 50 words',examples=['Nitish','Raju'],default=None)]
+    name: str
     age: int
-    weight:Annotated[float,Field(gt=0,strict=True)] #gt mtlb greater than
+    weight:float
     married:bool
-    allergies:Optional[List[str]]=None
+    allergies:List[str]
     email: EmailStr
     linkedin_url: AnyUrl
+
+    @field_validator('email')
+    @classmethod
+    def email_validator(cls,value):
+        valid_domains=['hdfc.com','icici.com']
+        domain_name=value.split('@')
+        if domain_name not in valid_domains:
+            raise ValueError("Not in valid Domain")
+        
+        return value
 
 
 patient_info={
@@ -18,7 +27,7 @@ patient_info={
     'weight':78.45,
     'married':True,
     'allergies':['dust','smoke','webs'],
-    'email':'bakuraj@gmail.com',
+    'email':'bakuraj@hdfc.com',
     'linkedin_url':'https://www.perplexity.ai/'
     }
 
